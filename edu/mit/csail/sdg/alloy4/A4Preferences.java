@@ -454,13 +454,13 @@ public class A4Preferences {
 
    /** The amount of memory (in M) to allocate for Kodkod and the SAT solvers. */
    public static final IntChoicePref SubMemory = new IntChoicePref("SubMemory", "Maximum memory",
-         Arrays.asList(256,512,768,1024,1536,2048,2560,3072,3584,4096), 768) {
+         Arrays.asList(256,512,768,1024,1536,2048,2560,3072,3584,4096), 4096) {
       @Override public Object renderValueShort(Integer value) { return value.toString() + " MB"; }
    };
 
    /** The amount of stack (in K) to allocate for Kodkod and the SAT solvers. */
    public static final IntChoicePref SubStack = new IntChoicePref("SubStack", "Maximum stack",
-         Arrays.asList(1024,2048,4096,8192,16384,32768,65536), 8192) {
+         Arrays.asList(1024,2048,4096,8192,16384,32768,65536), 65536) {
       @Override public Object renderValueShort(Integer value) { return value.toString() + " k"; }
    };
 
