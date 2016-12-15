@@ -243,30 +243,6 @@ public final class RunAlloy {
       System.out.printf("-Dhigherorder must be true or false.\n");
       System.exit(1);
     }
-
-    // Set via "-Dshare=[true/false]" on the command line.
-    String share_str = System.getProperty("share");
-    boolean share = true;
-    if (share_str == null){
-      System.out.printf("-Dshare must be true or false.\n");
-      System.exit(1);
-    } else if (share_str.equals("true")){
-      share = true;
-    } else if (share_str.equals("false")) {
-      share = false;
-    } else {
-      System.out.printf("-Dshare must be true or false.\n");
-      System.exit(1);
-    }
-
-    // Set via "-Dthreads=..." on the command line.
-    String threads_str = System.getProperty("threads");
-    int threads = 1;
-    if (threads_str == null) {
-      System.out.printf("-Dthreads must be a positive integer.\n");
-      System.exit(1);
-    }
-    threads = Integer.parseInt(threads_str);
     
     // Set via "-Dcmd=..." on the command line.
     String cmd_index_str = System.getProperty("cmd");
@@ -277,14 +253,11 @@ public final class RunAlloy {
     }
     cmd_index = Integer.parseInt(cmd_index_str);
 
-    // Set via "-Dtask=..." on the command line.
-    String task_str = System.getProperty("task");
-    int task_id = Integer.parseInt(task_str);
-
+    // Set via "-Diter=0" or "-Diter=1" on the command line.
     String iter_str = System.getProperty("iter");
     int iter_flag = 0;
     if (iter_str != null) {
-	iter_flag = Integer.parseInt(iter_str);
+      iter_flag = Integer.parseInt(iter_str);
     }
     
     boolean result =
