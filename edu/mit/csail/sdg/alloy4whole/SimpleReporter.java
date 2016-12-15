@@ -15,7 +15,6 @@
 
 package edu.mit.csail.sdg.alloy4whole;
 
-import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -205,7 +204,6 @@ final class SimpleReporter extends A4Reporter {
                 span.log("\n"); span.logIndented(e.msg.trim()); span.log("\n\n");
             }
             if (array[0].equals("sat")) {
-	        Toolkit.getDefaultToolkit().beep(); // added by JPW
                 boolean chk = Boolean.TRUE.equals(array[1]);
                 int expects = (Integer) (array[2]);
                 String filename = (String) (array[3]), formula = (String) (array[4]);
@@ -239,7 +237,6 @@ final class SimpleReporter extends A4Reporter {
                 span.logBold("   Minimizing the unsat core of "+array[3]+" entries...\n");
             }
             if (array[0].equals("unsat")) {
-	        Toolkit.getDefaultToolkit().beep(); // added by JPW
                 boolean chk = Boolean.TRUE.equals(array[1]);
                 int expects = (Integer) (array[2]);
                 String formula = (String) (array[4]);
