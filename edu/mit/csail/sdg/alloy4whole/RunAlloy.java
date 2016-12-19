@@ -137,32 +137,29 @@ public final class RunAlloy {
     Date start = Globals.lastTime;
     Date end = new Date();
     long solveTime = end.getTime() - start.getTime();
-    System.out.printf("%s: Solving took %d milliseconds.\n", getTimestamp(), solveTime);
+    System.out.printf("%s: Solving took %d milliseconds.\n",
+		      getTimestamp(), solveTime);
 
     if (iter_flag == 0) {
       if (soln.satisfiable()) {
-      
-	// Solution found
 	soln.writeXML(xml_filename);
 	System.out.printf("Solution saved to %s.\n",
 			  xml_filename_short);
 	return true;
-	
       } else {
-	
-	// No solution found
-	System.out.printf ("No solution found.\n");
+	System.out.printf("No solution found.\n");
 	return false;      
       }
     }
     else {
       int num_solns = 0;
       while (soln.satisfiable()) {
-	System.out.printf("Solution " + num_solns + " found.\n");
+	//System.out.printf("Solution " + num_solns + " found.\n");
 	String iter_xml =
 	  xml_filename_short.replaceAll("\\.", "_" + num_solns + ".");
 	soln.writeXML(iter_xml);
-	System.out.printf("Solution saved to %s.\n", iter_xml);	    
+	System.out.printf("%s: Solution saved to %s.\n",
+			  getTimestamp(), iter_xml);	    
 	soln = soln.next();
 	num_solns++;
       }
