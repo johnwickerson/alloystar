@@ -140,7 +140,7 @@ public final class RunAlloy {
     System.out.printf("%s: Solving took %d milliseconds.\n",
 		      getTimestamp(), solveTime);
 
-    if (not iter_flag) {
+    if (!iter_flag) {
       if (soln.satisfiable()) {
 	soln.writeXML(xml_filename);
 	System.out.printf("Solution saved to %s.\n",
@@ -249,8 +249,8 @@ public final class RunAlloy {
     // Set via "-Diter=[true/false]" on the command line.
     String iter_str = System.getProperty("iter");
     boolean iter_flag = false;
-    if (iter_str == null || higherorder_str.equals("false")){
-    } else if (higherorder_str.equals("true")){
+    if (iter_str == null || iter_str.equals("false")){
+    } else if (iter_str.equals("true")){
       iter_flag = true;
     } else {
       System.out.printf("-Diter must be true or false.\n");
