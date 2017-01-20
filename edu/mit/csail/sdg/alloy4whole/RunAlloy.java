@@ -91,7 +91,7 @@ public final class RunAlloy {
 	     A4Options.SatSolver solver,
 	     boolean higherOrderSolver,
 	     int cmd_index,
-	     int iter_flag)
+	     boolean iter_flag)
     throws Err
   {
     String als_filename_short = new File(als_filename).getName();
@@ -140,7 +140,7 @@ public final class RunAlloy {
     System.out.printf("%s: Solving took %d milliseconds.\n",
 		      getTimestamp(), solveTime);
 
-    if (iter_flag == 0) {
+    if (not iter_flag) {
       if (soln.satisfiable()) {
 	soln.writeXML(xml_filename);
 	System.out.printf("Solution saved to %s.\n",
@@ -228,14 +228,10 @@ public final class RunAlloy {
 
     // Set via "-Dhigher=[true/false]" on the command line.
     String higherorder_str = System.getProperty("higherorder");
-    boolean higherorder = true;
-    if (higherorder_str == null){
-      System.out.printf("-Dhigherorder must be true or false.\n");
-      System.exit(1);
+    boolean higherorder = false;
+    if (higherorder_str == null || higherorder_str.equals("false")){
     } else if (higherorder_str.equals("true")){
       higherorder = true;
-    } else if (higherorder_str.equals("false")) {
-      higherorder = false;
     } else {
       System.out.printf("-Dhigherorder must be true or false.\n");
       System.exit(1);
@@ -250,11 +246,15 @@ public final class RunAlloy {
     }
     cmd_index = Integer.parseInt(cmd_index_str);
 
-    // Set via "-Diter=0" or "-Diter=1" on the command line.
+    // Set via "-Diter=[true/false]" on the command line.
     String iter_str = System.getProperty("iter");
-    int iter_flag = 0;
-    if (iter_str != null) {
-      iter_flag = Integer.parseInt(iter_str);
+    boolean iter_flag = false;
+    if (iter_str == null || higherorder_str.equals("false")){
+    } else if (higherorder_str.equals("true")){
+      iter_flag = true;
+    } else {
+      System.out.printf("-Diter must be true or false.\n");
+      System.exit(1);
     }
     
     boolean result =
