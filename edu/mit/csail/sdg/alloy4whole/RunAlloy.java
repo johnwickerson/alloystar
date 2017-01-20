@@ -140,7 +140,7 @@ public final class RunAlloy {
     System.out.printf("%s: Solving took %d milliseconds.\n",
 		      getTimestamp(), solveTime);
 
-    if (not iter_flag) {
+    if (not(iter_flag)) {
       if (soln.satisfiable()) {
 	soln.writeXML(xml_filename);
 	System.out.printf("Solution saved to %s.\n",
