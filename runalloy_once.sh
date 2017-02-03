@@ -1,0 +1,2 @@
+ITER=false
+./runalloy.sh $@
