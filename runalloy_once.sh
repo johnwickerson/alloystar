@@ -1,2 +1,2 @@
-ITER=false
+export ITER=false
 ./runalloy.sh $@
