@@ -1,4 +1,5 @@
 ALS_FILE=$1
+CMD=$2
 
 if [ -z "$OS" ]
 then
@@ -30,9 +31,9 @@ export PATH=`pwd`/$OS:$PATH
 
 java \
     -Djava.library.path="`pwd`/$OS" \
-    -Dout=test.xml      `# output to test_<NUMBER>.xml`        \
-    -Dsolver=$SOLVER    `# using given solver`                 \
-    -Dcmd=0             `# run first command in file`          \
-    -Diter=$ITER        `# whether to run iteratively`         \
-    edu/mit/csail/sdg/alloy4whole/RunAlloy                     \
+    -Dout=test.xml      `# output to test_<NUMBER>.xml`  \
+    -Dsolver=$SOLVER    `# using given solver`           \
+    -Dcmd=$CMD          `# run nth command in file`      \
+    -Diter=$ITER        `# whether to run iteratively`   \
+    edu/mit/csail/sdg/alloy4whole/RunAlloy               \
     $ALS_FILE
