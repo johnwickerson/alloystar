@@ -3,7 +3,7 @@ CMD=$2
 
 if [ -z "$OS" ]
 then
-    echo "Environment variable `OS` not set -- aborting."
+    echo "Environment variable 'OS' not set -- aborting."
     exit 1
 else
     case $OS in
@@ -14,7 +14,7 @@ fi
 
 if [ -z "$SOLVER" ]
 then
-    echo "Environment variable `SOLVER` not set -- defaulting to `sat4j`."
+    echo "Environment variable 'SOLVER' not set -- defaulting to 'sat4j'."
     SOLVER="sat4j"
 else
     case $SOLVER in
@@ -25,7 +25,7 @@ fi
 
 if [ -z "$ITER" ]
 then
-    echo "Environment variable `ITER` not set -- aborting."
+    echo "Environment variable 'ITER' not set -- aborting."
     exit 1
 fi
 
