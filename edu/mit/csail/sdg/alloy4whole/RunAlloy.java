@@ -116,7 +116,7 @@ public final class RunAlloy {
     int num_commands = world.getAllCommands().size();
     if (num_commands <= cmd_index) {
       System.out.printf
-	("ERROR. File %s contains %d commands; expected at least $d.\n",
+	("ERROR. File %s contains %d commands; expected at least %d.\n",
 	 als_filename_short, num_commands, cmd_index + 1);
       System.exit(1);
     }
