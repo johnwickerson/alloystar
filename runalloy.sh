@@ -3,7 +3,8 @@ CMD=$2
 
 if [ -z "$OS" ]
 then
-    OS="x86-mac"
+    echo "Environment variable `OS` not set -- aborting."
+    exit 1
 else
     case $OS in
 	x86-freebsd|x86-linux|x86-mac|x86-windows|amd64-linux);;
@@ -13,7 +14,8 @@ fi
 
 if [ -z "$SOLVER" ]
 then
-    SOLVER="glucose"
+    echo "Environment variable `SOLVER` not set -- defaulting to `sat4j`."
+    SOLVER="sat4j"
 else
     case $SOLVER in
 	sat4j|cryptominisat|glucose|plingeling|lingeling|minisatprover|minisat);;
@@ -23,7 +25,7 @@ fi
 
 if [ -z "$ITER" ]
 then
-    echo "Expected ITER to be true or false."
+    echo "Environment variable `ITER` not set -- aborting."
     exit 1
 fi
 
