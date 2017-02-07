@@ -14,6 +14,7 @@ fi
 
 if [ -z "$JAVA_HEAP_SIZE" ]
 then
+    continue
 else
     SET_MAX_HEAP_SIZE="-Xmx$JAVA_HEAP_SIZE"
 fi
