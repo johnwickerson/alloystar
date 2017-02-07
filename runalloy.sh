@@ -1,5 +1,6 @@
 ALS_FILE=$1
 CMD=$2
+XML_DIR=$3
 
 if [ -z "$OS" ]
 then
@@ -39,11 +40,11 @@ fi
 export PATH=`pwd`/$OS:$PATH
 
 java \
-    $SET_MAX_HEAP_SIZE \
-    -Djava.library.path="`pwd`/$OS" \
-    -Dout=test.xml      `# output to test_<NUMBER>.xml`  \
-    -Dsolver=$SOLVER    `# using given solver`           \
-    -Dcmd=$CMD          `# run nth command in file`      \
-    -Diter=$ITER        `# whether to run iteratively`   \
-    edu/mit/csail/sdg/alloy4whole/RunAlloy               \
+    $SET_MAX_HEAP_SIZE                                        \
+    -Djava.library.path="`pwd`/$OS"                           \
+    -Dout=$XML_DIR    `# output to XML_DIR/test_<NUMBER>.xml` \
+    -Dsolver=$SOLVER  `# using given solver`                  \
+    -Dcmd=$CMD        `# run nth command in file`             \
+    -Diter=$ITER      `# whether to run iteratively`          \
+    edu/mit/csail/sdg/alloy4whole/RunAlloy                    \
     $ALS_FILE

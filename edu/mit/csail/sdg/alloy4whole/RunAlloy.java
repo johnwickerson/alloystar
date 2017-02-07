@@ -87,7 +87,7 @@ public final class RunAlloy {
 
   public static boolean
     runalloy(String als_filename,
-	     String xml_filename,
+	     String xml_dir,
 	     A4Options.SatSolver solver,
 	     boolean higherOrderSolver,
 	     int cmd_index,
@@ -95,7 +95,7 @@ public final class RunAlloy {
     throws Err
   {
     String als_filename_short = new File(als_filename).getName();
-    String xml_filename_short = new File(xml_filename).getName();
+    //String xml_filename_short = new File(xml_filename).getName();
 
     // Make a reporter
     MyReporter rep = new MyReporter();
@@ -137,14 +137,15 @@ public final class RunAlloy {
     Date start = Globals.lastTime;
     Date end = new Date();
     long solveTime = end.getTime() - start.getTime();
-    System.out.printf("%s: Solving took %d milliseconds.\n",
-		      getTimestamp(), solveTime);
+    System.out.printf("Solving took %d milliseconds.\n", solveTime);
 
     if (!iter_flag) {
       if (soln.satisfiable()) {
+	String xml_filename =
+	  xml_dir + File.separator + "test_0.xml";
 	soln.writeXML(xml_filename);
-	System.out.printf("Solution saved to %s.\n",
-			  xml_filename_short);
+	System.out.printf("%s: Solution saved to %s.\n",
+			  getTimestamp(), xml_filename);
 	return true;
       } else {
 	System.out.printf("No solution found.\n");
@@ -154,15 +155,15 @@ public final class RunAlloy {
     else {
       int num_solns = 0;
       while (soln.satisfiable()) {
-	//System.out.printf("Solution " + num_solns + " found.\n");
-	String iter_xml =
-	  xml_filename_short.replaceAll("\\.", "_" + num_solns + ".");
-	soln.writeXML(iter_xml);
+	String xml_filename =
+	  xml_dir + File.separator + "test_" + num_solns + ".xml";
+	soln.writeXML(xml_filename);
 	System.out.printf("%s: Solution saved to %s.\n",
-			  getTimestamp(), iter_xml);	    
+			  getTimestamp(), xml_filename);	    
 	soln = soln.next();
 	num_solns++;
       }
+      System.out.printf("No more solutions found.\n");
       return (num_solns > 0);
     }
   }
@@ -176,27 +177,10 @@ public final class RunAlloy {
     }
     String als_filename = args[0];
 
-    // Set via "-Dout=foo.xml" on the command line.
-    String xml_filename = System.getProperty("out");
-    if (xml_filename == null) {
-      System.out.printf("Expected -Dout=<something>.xml.\n");
-      System.exit(1);
-    }
-
-    // Set via "-Dexpect=[true/false]" on the command line.
-    String expectation_str = System.getProperty("expect");
-    boolean expectation = true;
-    if (expectation_str == null){
-      // do nothing
-    } else if (expectation_str.equals("true")){
-      // we're expecting one solution
-      expectation = true;
-    } else if (expectation_str.equals("false")) {
-      // we're expecting zero solutions
-      expectation = false;
-    } else {
-      // -Dexpect given invalid value
-      System.out.printf("-Dexpect must be true or false.\n");
+    // Set via "-Dout=<dir>" on the command line.
+    String xml_dir = System.getProperty("out");
+    if (xml_dir == null) {
+      System.out.printf("Expected -Dout=<directory>.\n");
       System.exit(1);
     }
 
@@ -258,13 +242,11 @@ public final class RunAlloy {
     }
     
     boolean result =
-      runalloy(als_filename, xml_filename, solver,
+      runalloy(als_filename, xml_dir, solver,
 	       higherorder, cmd_index, iter_flag);
 
-    if (expectation == result)
-      System.exit(0);
-    else
-      System.exit(1);
+    if (result) System.exit(0);
+    else System.exit(1);
     
   }
 }
