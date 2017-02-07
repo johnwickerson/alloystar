@@ -12,6 +12,12 @@ else
     esac
 fi
 
+if [ -z "$JAVA_HEAP_SIZE" ]
+then
+else
+    SET_MAX_HEAP_SIZE="-Xmx$JAVA_HEAP_SIZE"
+fi
+
 if [ -z "$SOLVER" ]
 then
     echo "Environment variable 'SOLVER' not set -- defaulting to 'sat4j'."
@@ -32,6 +38,7 @@ fi
 export PATH=`pwd`/$OS:$PATH
 
 java \
+    $SET_MAX_HEAP_SIZE \
     -Djava.library.path="`pwd`/$OS" \
     -Dout=test.xml      `# output to test_<NUMBER>.xml`  \
     -Dsolver=$SOLVER    `# using given solver`           \
