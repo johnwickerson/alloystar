@@ -85,7 +85,7 @@ public final class RunAlloy {
     return (new SimpleDateFormat("HH:mm:ss").format(new Date()));
   }
 
-  public static boolean
+  public static void
     runalloy(String als_filename,
 	     String xml_dir,
 	     A4Options.SatSolver solver,
@@ -131,7 +131,7 @@ public final class RunAlloy {
     } catch(Exception e) {
       e.printStackTrace(System.out);
       System.exit(1);
-      return false;
+      return; // needed to avoid silly compiler error
     }
 
     Date start = Globals.lastTime;
@@ -146,10 +146,10 @@ public final class RunAlloy {
 	soln.writeXML(xml_filename);
 	System.out.printf("%s: Solution saved to %s.\n",
 			  getTimestamp(), xml_filename);
-	return true;
+	return;
       } else {
 	System.out.printf("No solution found.\n");
-	return false;      
+	return;      
       }
     }
     else {
@@ -164,7 +164,7 @@ public final class RunAlloy {
 	num_solns++;
       }
       System.out.printf("No more solutions found.\n");
-      return (num_solns > 0);
+      return;
     }
   }
   
@@ -241,13 +241,10 @@ public final class RunAlloy {
       System.exit(1);
     }
     
-    boolean result =
-      runalloy(als_filename, xml_dir, solver,
-	       higherorder, cmd_index, iter_flag);
+    runalloy(als_filename, xml_dir, solver,
+	     higherorder, cmd_index, iter_flag);
 
-    if (result) System.exit(0);
-    else System.exit(1);
-    
+    System.exit(0);    
   }
 }
 
