@@ -158,11 +158,12 @@ public final class RunAlloy {
 	String xml_filename =
 	  xml_dir + File.separator + "test_" + num_solns + ".xml";
 	soln.writeXML(xml_filename);
-	System.out.printf("%s: Solution saved to %s.\n",
-			  getTimestamp(), xml_filename);	    
+	System.out.printf("%s: Solution %d saved to %s.\r",
+			  getTimestamp(), num_solns, xml_filename);	    
 	soln = soln.next();
 	num_solns++;
       }
+      System.out.printf("\n");
       System.out.printf("No more solutions found.\n");
       return;
     }
