@@ -1,3 +1,5 @@
+#!/bin/sh
+
 ALS_FILE=$1
 CMD=$2
 XML_DIR=$3
