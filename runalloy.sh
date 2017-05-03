@@ -28,8 +28,12 @@ then
     SOLVER="sat4j"
 else
     case $SOLVER in
-	sat4j|cryptominisat|glucose|plingeling|lingeling|minisatprover|minisat);;
-	*) exit 1;;
+	sat4j|cryptominisat|plingeling|lingeling|minisatprover|minisat) \
+	    HIGHER_ORDER="false";;
+	glucose) \
+	    HIGHER_ORDER="true";;
+	*) \
+	    exit 1;;
     esac
 fi
 
@@ -46,6 +50,8 @@ java \
     -Djava.library.path="`pwd`/$OS"                           \
     -Dout=$XML_DIR    `# output to XML_DIR/test_<NUMBER>.xml` \
     -Dsolver=$SOLVER  `# using given solver`                  \
+    -Dhigherorder=$HIGHER_ORDER                               \
+                      `# enable AlloyStar just in case`       \
     -Dcmd=$CMD        `# run nth command in file`             \
     -Diter=$ITER      `# whether to run iteratively`          \
     edu/mit/csail/sdg/alloy4whole/RunAlloy                    \

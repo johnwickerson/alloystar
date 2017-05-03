@@ -211,7 +211,7 @@ public final class RunAlloy {
       System.exit(1);
     }
 
-    // Set via "-Dhigher=[true/false]" on the command line.
+    // Set via "-Dhigherorder=[true/false]" on the command line.
     String higherorder_str = System.getProperty("higherorder");
     boolean higherorder = false;
     if (higherorder_str == null || higherorder_str.equals("false")){
