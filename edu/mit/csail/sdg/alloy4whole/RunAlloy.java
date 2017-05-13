@@ -57,12 +57,14 @@ class MyReporter extends A4Reporter {
 				  int maxseq, int skolemDepth,
 				  int symmetry)
   {
-    System.out.printf("Solver=%s Bitwidth=%d MaxSeq=%d%s Symmetry=%s\n",
+    /*
+      System.out.printf("Solver=%s Bitwidth=%d MaxSeq=%d%s Symmetry=%s\n",
 		      solver, bitwidth, maxseq,
 		      skolemDepth == 0 ? "" :
 		      String.format(" SkolemDepth=%d",skolemDepth),
 		      symmetry > 0 ? String.format("%d", symmetry) :
 		      "OFF"); 
+    */
     Globals.lastTime = new Date();
   }
   
@@ -70,10 +72,7 @@ class MyReporter extends A4Reporter {
     Date start = Globals.lastTime;
     Date end = new Date();
     long elapsed = end.getTime() - start.getTime();
-    System.out.printf("%s: Translation took %d milliseconds.\n",
-		      getTimestamp(), elapsed);
-    System.out.printf("%d vars. %d primary vars. %d clauses.\n",
-		      totalVars, primaryVars, clauses);
+    System.out.printf("%s: Translation took %d milliseconds (%d vars, %d primary vars, %d clauses).\n", getTimestamp(), elapsed, totalVars, primaryVars, clauses);
     Globals.lastTime = end;
     Globals.translationTime = elapsed;
   }
