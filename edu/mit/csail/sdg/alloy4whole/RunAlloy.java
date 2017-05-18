@@ -72,7 +72,7 @@ class MyReporter extends A4Reporter {
     Date start = Globals.lastTime;
     Date end = new Date();
     long elapsed = end.getTime() - start.getTime();
-    System.out.printf("%s: Translation took %d ms (%d vars, %d primary vars, %d clauses).\n", getTimestamp(), elapsed, totalVars, primaryVars, clauses);
+    System.out.printf("%s: Translation took %ds (%d vars, %d primary vars, %d clauses).\n", getTimestamp(), elapsed/1000, totalVars, primaryVars, clauses);
     Globals.lastTime = end;
     Globals.translationTime = elapsed;
   }
@@ -136,7 +136,7 @@ public final class RunAlloy {
     Date start = Globals.lastTime;
     Date end = new Date();
     long solveTime = end.getTime() - start.getTime();
-    System.out.printf("Solving took %d ms.\n", solveTime);
+    System.out.printf("Solving took %ds.\n", solveTime/1000);
 
     if (!iter_flag) {
       if (soln.satisfiable()) {
