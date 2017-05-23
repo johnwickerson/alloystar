@@ -108,8 +108,8 @@ public final class RunAlloy {
     options.solver = solver;    
     options.higherOrderSolver = higherOrderSolver;
     
-    System.out.printf("Running Alloy, using %s on command %d.\n",
-		      options.solver, cmd_index);
+    System.out.printf("%s: Running Alloy, using %s on command %d.\n",
+		      getTimestamp(), options.solver, cmd_index);
     
     // Extract command to execute
     int num_commands = world.getAllCommands().size();
@@ -163,7 +163,7 @@ public final class RunAlloy {
 	num_solns++;
       }
       System.out.printf("\n");
-      System.out.printf("No more solutions found.\n");
+      System.out.printf("%s: No more solutions found.\n", getTimestamp());
       return;
     }
   }
