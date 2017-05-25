@@ -107,9 +107,12 @@ public final class RunAlloy {
     A4Options options = new A4Options();
     options.solver = solver;    
     options.higherOrderSolver = higherOrderSolver;
+
+    String higherOrderString = higherOrderSolver? " (ho)" : "";
     
-    System.out.printf("%s: Running Alloy, using %s on command %d.\n",
-		      getTimestamp(), options.solver, cmd_index);
+    System.out.printf("%s: Running Alloy, using %s%s on command %d.\n",
+		      getTimestamp(), options.solver, higherOrderString,
+		      cmd_index);
     
     // Extract command to execute
     int num_commands = world.getAllCommands().size();
