@@ -227,6 +227,11 @@ public final class Command extends Browsable {
                 if (x.op==ExprConstant.Op.STRING) set.add(x.string);
                 return null;
             }
+            @Override public Object visit(ExprCall x) throws Err {
+                x.fun.getBody().accept(this);
+                for (Expr e : x.args) e.accept(this);
+                return null;
+            }            
         };
         for(Command c=this; c!=null; c=c.parent) c.formula.accept(findString);
         for(Sig s: sigs) {

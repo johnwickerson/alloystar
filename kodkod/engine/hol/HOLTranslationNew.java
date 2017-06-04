@@ -23,6 +23,7 @@ import kodkod.ast.operator.ExprOperator;
 import kodkod.ast.visitor.AbstractReplacer;
 import kodkod.engine.Evaluator;
 import kodkod.engine.config.Options;
+import kodkod.engine.fol2sat.FullNegationPropagator;
 import kodkod.engine.fol2sat.HigherOrderDeclException;
 import kodkod.engine.fol2sat.Translation;
 import kodkod.engine.fol2sat.Translator;
@@ -34,6 +35,7 @@ import kodkod.instance.Instance;
 import kodkod.instance.TupleSet;
 import kodkod.util.collections.Pair;
 import kodkod.util.ints.IntSet;
+import kodkod.util.nodes.AnnotatedNode;
 
 public abstract class HOLTranslationNew extends HOLTranslation {
 
@@ -206,6 +208,8 @@ public abstract class HOLTranslationNew extends HOLTranslation {
                                 bInc.bound(r, p.b.lowerBound(r), p.b.upperBound(r));
                             }
                             fInc = p.a;
+                        } else {
+                            fInc = FullNegationPropagator.toNNF(AnnotatedNode.annotateRoots(fInc)).node();
                         }
 
                         rep.holFindingNextCandidate(Some4All.this, fInc);
