@@ -80,7 +80,6 @@ public final class FullNegationPropagator extends AbstractVoidVisitor {
 
     private List<Formula> conjuncts;
     private  Map<Formula, Node> annotations;
-    private final Map<Node,Boolean> visited;
     private final Set<Node> shared;
     private boolean negated;
     private boolean hasChanged;
@@ -89,14 +88,13 @@ public final class FullNegationPropagator extends AbstractVoidVisitor {
      * Constructs a flattener for a formula in which the given nodes are shared.
      */
     private FullNegationPropagator(Set<Node> shared) {
-        this(shared, new LinkedHashMap<Formula, Node>(), new IdentityHashMap<Node,Boolean>());
+        this(shared, new LinkedHashMap<Formula, Node>());
     }
 
-    private FullNegationPropagator(Set<Node> shared, Map<Formula, Node> annotations, Map<Node, Boolean> visited) {
+    private FullNegationPropagator(Set<Node> shared, Map<Formula, Node> annotations) {
         this.conjuncts = new LinkedList<Formula>();
         this.annotations = annotations;
         this.shared = shared;
-        this.visited = visited;
         this.negated = false;
     }
 
@@ -106,20 +104,6 @@ public final class FullNegationPropagator extends AbstractVoidVisitor {
      */
     @Override
     protected boolean visited(Node n) {
-        if (shared.contains(n)) {
-            if (visited.containsKey(n)) {
-                final Boolean val = visited.get(n);
-                if (val==null || val.booleanValue()==negated) {
-                    return true;
-                } else {
-                    visited.put(n, null);
-                    return false;
-                }
-            } else {
-                visited.put(n, Boolean.valueOf(negated));
-                return false;
-            }
-        }
         return false;
     }
 
@@ -130,7 +114,7 @@ public final class FullNegationPropagator extends AbstractVoidVisitor {
     public final void visit(NotFormula nf) {
         if (visited(nf)) return;
 
-        FullNegationPropagator fne = new FullNegationPropagator(shared, annotations, visited);
+        FullNegationPropagator fne = new FullNegationPropagator(shared, annotations);
         fne.negated = !negated;
         nf.formula().accept(fne);
         if (fne.hasChanged) {
@@ -157,10 +141,10 @@ public final class FullNegationPropagator extends AbstractVoidVisitor {
                 bf.right().accept(this);
             } else {
                 // !(left && right) --> !left || !right
-                FullNegationPropagator fne1 = new FullNegationPropagator(shared, annotations, visited);
+                FullNegationPropagator fne1 = new FullNegationPropagator(shared, annotations);
                 bf.left().not().accept(fne1);
 
-                FullNegationPropagator fne2 = new FullNegationPropagator(shared, annotations, visited);
+                FullNegationPropagator fne2 = new FullNegationPropagator(shared, annotations);
                 bf.right().not().accept(fne2);
 
                 addConjunct(Formula.and(fne1.conjuncts).or(Formula.and(fne2.conjuncts)), false, bf);
@@ -170,10 +154,10 @@ public final class FullNegationPropagator extends AbstractVoidVisitor {
         case OR:
             if (!negated) {
                 // left || right
-                FullNegationPropagator fne1 = new FullNegationPropagator(shared, annotations, visited);
+                FullNegationPropagator fne1 = new FullNegationPropagator(shared, annotations);
                 bf.left().accept(fne1);
 
-                FullNegationPropagator fne2 = new FullNegationPropagator(shared, annotations, visited);
+                FullNegationPropagator fne2 = new FullNegationPropagator(shared, annotations);
                 bf.right().accept(fne2);
 
                 if (!fne1.hasChanged && !fne2.hasChanged) {
@@ -192,10 +176,10 @@ public final class FullNegationPropagator extends AbstractVoidVisitor {
         case IMPLIES:
             if (!negated) {
                 // left => right --> !left || right
-                FullNegationPropagator fne1 = new FullNegationPropagator(shared, annotations, visited);
+                FullNegationPropagator fne1 = new FullNegationPropagator(shared, annotations);
                 bf.left().not().accept(fne1);
 
-                FullNegationPropagator fne2 = new FullNegationPropagator(shared, annotations, visited);
+                FullNegationPropagator fne2 = new FullNegationPropagator(shared, annotations);
                 bf.right().accept(fne2);
 
                 addConjunct(Formula.and(fne1.conjuncts).or(Formula.and(fne2.conjuncts)), false, bf);
@@ -209,16 +193,18 @@ public final class FullNegationPropagator extends AbstractVoidVisitor {
             hasChanged = true;
             break;
         case IFF:
-            FullNegationPropagator fne1 = new FullNegationPropagator(shared, annotations, visited);
-            FullNegationPropagator fne2 = new FullNegationPropagator(shared, annotations, visited);
+            FullNegationPropagator fne1 = new FullNegationPropagator(shared, annotations);
+            FullNegationPropagator fne2 = new FullNegationPropagator(shared, annotations);
             if (!negated) {
-                // a = b --> (a && b) || (!a && !b)
+                // a <=> b --> (a && b) || (!a && !b)
                 bf.left().and(bf.right()).accept(fne1);
                 bf.left().not().and(bf.right().not()).accept(fne2);
             } else {
                 // !(a = b) --> (a && !b) || (!a && b)
-                bf.left().and(bf.right().not()).accept(fne1);
-                bf.left().not().and(bf.right()).accept(fne2);
+                Formula orLhs = bf.left().and(bf.right().not());
+				orLhs.accept(fne1);
+                Formula orRhs = bf.left().not().and(bf.right());
+				orRhs.accept(fne2);
             }
             addConjunct(Formula.and(fne1.conjuncts).or(Formula.and(fne2.conjuncts)), false, bf);
             hasChanged = true;
@@ -239,7 +225,7 @@ public final class FullNegationPropagator extends AbstractVoidVisitor {
         if (negated && op==AND) {
             List<Formula> formulas = new LinkedList<Formula>();
             for (Formula f : nf) {
-                FullNegationPropagator fne = new FullNegationPropagator(shared, annotations, visited);
+                FullNegationPropagator fne = new FullNegationPropagator(shared, annotations);
                 f.not().accept(fne);
                 formulas.add(Formula.and(fne.conjuncts));
             }
@@ -249,7 +235,7 @@ public final class FullNegationPropagator extends AbstractVoidVisitor {
             List<Formula> formulas = new LinkedList<Formula>();
             boolean changed = false;
             for (Formula f : nf) {
-                FullNegationPropagator fne = new FullNegationPropagator(shared, annotations, visited);
+                FullNegationPropagator fne = new FullNegationPropagator(shared, annotations);
                 f.accept(fne);
                 changed = changed || fne.hasChanged;
                 formulas.add(Formula.and(fne.conjuncts));
@@ -282,13 +268,13 @@ public final class FullNegationPropagator extends AbstractVoidVisitor {
 
     public final void visit(QuantifiedFormula qf) {
         if (visited(qf)) return;
-        FullNegationPropagator fneBody = new FullNegationPropagator(shared, annotations, visited);
+        FullNegationPropagator fneBody = new FullNegationPropagator(shared, annotations);
         fneBody.negated = negated;
         boolean wasNegated = negated;
         negated = false;
         qf.body().accept(fneBody);
 
-        FullNegationPropagator fneDomain = new FullNegationPropagator(shared, annotations, visited);
+        FullNegationPropagator fneDomain = new FullNegationPropagator(shared, annotations);
         qf.domain().accept(fneDomain);
 
         if (fneBody.hasChanged || fneDomain.hasChanged || wasNegated) {

@@ -1,6 +1,11 @@
 package kodkod.engine.hol;
 
 import static kodkod.util.nodes.AnnotatedNode.annotate;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import kodkod.ast.BinaryExpression;
 import kodkod.ast.BinaryFormula;
 import kodkod.ast.BinaryIntExpression;
@@ -111,10 +116,11 @@ public class HOLTranslator implements ReturnVisitor<Expression, Proc, Decls, Int
         	right = binFormula.right().accept(this);
         }
         return left.compose(binFormula.op(), right);
-    }
+ }
 
     @Override
     public Proc visit(NaryFormula formula) {
+        if (annotated.isFOLNode(formula)) return new Proc.FOL(bounds, formula);
         Proc ans = null;
         for (Formula f : formula) {
             Proc p = formula.op() == FormulaOperator.OR ? toProc(f) : f.accept(this);
@@ -138,10 +144,20 @@ public class HOLTranslator implements ReturnVisitor<Expression, Proc, Decls, Int
         boolean firstOrder = true;
         for (Decl decl : qf.decls()) if (decl.multiplicity() != Multiplicity.ONE) { firstOrder = false; break; }
 
-        if (firstOrder && body instanceof FOL)
+        if (firstOrder && body instanceof FOL && noNewHOLSkolems(((FOL)body).bounds.skolems(), bounds.skolems()))
             return new Proc.FOL(bounds, qf);
         else
             return new Proc.Some4All(bounds, qf, body);
+    }
+
+    private boolean noNewHOLSkolems(Collection<Relation> newSkolems, Collection<Relation> oldSkolems) {
+        Set<Relation> diff = new HashSet<Relation>(newSkolems);
+        diff.removeAll(oldSkolems);
+        for (Relation sk : diff) {
+            Decl d = sk.getSkolemVarDecl();
+            if (d != null && d.multiplicity() != Multiplicity.ONE) return false;
+        }
+        return true;
     }
 
     private Proc toProc(Formula formula) {

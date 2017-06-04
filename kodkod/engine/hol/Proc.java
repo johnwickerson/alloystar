@@ -1,10 +1,8 @@
 package kodkod.engine.hol;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -79,9 +77,10 @@ public abstract class Proc {
                 if (right instanceof AND) { return ((AND) right).composeFormula(bounds, formula, op); }
                 throw new NotComposableException(op, this, right);
             case OR:
-//            	if (right instanceof FOL && isSameBounds(right)) { return new FOL(bounds, formula.or(((FOL)right).formula)); }
-            	if (right instanceof FOL) { return new FOL(superset(right), formula.or(((FOL)right).formula)); }
-                if (right instanceof OR)  { return new OR(composeAll(op, this, ((OR) right).disjuncts)); }
+                //if (right instanceof FOL && isSameBounds(right)) { return new FOL(bounds, formula.or(((FOL)right).formula)); }
+                //if (right instanceof FOL) { return new FOL(superset(right), formula.or(((FOL)right).formula)); }
+                if (right instanceof OR)  { 
+                    return new OR(composeAll(op, this, ((OR) right).disjuncts)); }
                 return new OR(this, right);
             default:
                 throw new IllegalStateException("Expected formula in NNF; got operator: " + op);
@@ -106,20 +105,24 @@ public abstract class Proc {
             super(union(map(splits, new Bounds[0], new Func1<Proc, Bounds>() {
                 public Bounds run(Proc a) { return a.bounds(); }
             })));
-            Proc mergedFOLs = null;
-            List<Proc> rest = new ArrayList<Proc>(splits.length);
-            for (Proc p : splits) {
-                if (p instanceof FOL && mergedFOLs == null)
-                    mergedFOLs = p;
-                else if (p instanceof FOL && mergedFOLs.isSameBounds(p))
-                	mergedFOLs.compose(FormulaOperator.OR, p);
-                else
-                    rest.add(p);
-            }
-            if (mergedFOLs == null)
-            	this.disjuncts = rest.toArray(new Proc[0]);
-            else
-            	this.disjuncts = concat(new Proc[] { mergedFOLs }, rest.toArray(new Proc[0]));
+            this.disjuncts = splits;
+            return;
+            //NOTE: not safe to merge FOLs, because stuff might have been skolemized.  
+            //      The caller can perform optimizations to create FOL instead of OR when safe.
+//            Proc mergedFOLs = null;
+//            List<Proc> rest = new ArrayList<Proc>(splits.length);
+//            for (Proc p : splits) {
+//                if (p instanceof FOL && mergedFOLs == null)
+//                    mergedFOLs = p;
+//                else if (p instanceof FOL && mergedFOLs.isSameBounds(p))
+//                	mergedFOLs.compose(FormulaOperator.OR, p);
+//                else
+//                    rest.add(p);
+//            }
+//            if (mergedFOLs == null)
+//            	this.disjuncts = rest.toArray(new Proc[0]);
+//            else
+//            	this.disjuncts = concat(new Proc[] { mergedFOLs }, rest.toArray(new Proc[0]));
         }
 
         @Override public boolean isFirstOrder() { return false; }
@@ -307,15 +310,7 @@ public abstract class Proc {
      * ======================================================================== */
     public static class Some4All extends AND {
         public Some4All(Bounds bounds, QuantifiedFormula qf, Proc body)        { this(bounds, Formula.TRUE, new QuantProc(qf, qf.body().quantify(qf.quantifier().opposite, qf.decls(), qf.domain()), body)); }
-        public Some4All(Bounds bounds, Formula conjuncts, QuantProc... qProcs) {
-            super(bounds, conjuncts, qProcs);
-            if (conjuncts.toString().contains("$applyPolicy_u") && !bounds.toString().contains("$applyPolicy_u")) {
-                System.out.println(conjuncts);
-                System.out.println("--");
-                System.out.println(bounds);
-                System.out.println("--");
-            }
-        }
+        public Some4All(Bounds bounds, Formula conjuncts, QuantProc... qProcs) { super(bounds, conjuncts, qProcs); }
 
         @SuppressWarnings("unchecked")
         @Override protected Some4All make(Bounds b, Formula conj, QuantProc... qp) { return new Some4All(b, conj, qp); }

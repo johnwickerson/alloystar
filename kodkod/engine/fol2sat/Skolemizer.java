@@ -397,7 +397,7 @@ public abstract class Skolemizer extends AbstractReplacer {
 				final Decl skolemDecl = visit(decl);
 
 				Variable skVar = skolemDecl.variable();
-                final Relation skolem = Relation.skolem("$"+ skVar.name(), nonSkolems.size() + skVar.arity(), skVar, skolemDecl.expression(), quant);
+                final Relation skolem = Relation.skolem("$"+ skVar.name(), nonSkolems.size() + skVar.arity(), skVar, skolemDecl, quant);
 				reporter.skolemizing(decl, skolem, nonSkolemsView);
 
 				final Expression skolemExpr = skolemExpr(skolemDecl, skolem);

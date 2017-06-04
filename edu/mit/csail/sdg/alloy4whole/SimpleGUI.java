@@ -1075,6 +1075,7 @@ public final class SimpleGUI implements ComponentListener, Listener {
         opt.holMaxIter = A4Preferences.HOLMaxIter.get();
         opt.holFullIncrements = !A4Preferences.HOLForceIncInd.get();
         opt.coreMinimization = CoreMinimization.get();
+        opt.inferPartialInstance = InferPartialInstance.get();
         opt.coreGranularity = CoreGranularity.get();
         opt.originalFilename = Util.canon(text.get().getFilename());
         opt.solver = Solver.get();
