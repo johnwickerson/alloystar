@@ -41,7 +41,7 @@ if [ -z "$ITER" ]
 then
     echo "Environment variable 'ITER' not set -- aborting."
     exit 1
-fi
+fi    
 
 export PATH=`pwd`/$OS:$PATH
 
@@ -54,5 +54,6 @@ java \
                       `# enable AlloyStar just in case`       \
     -Dcmd=$CMD        `# run nth command in file`             \
     -Diter=$ITER      `# whether to run iteratively`          \
+    -Dhash="../mk_hash" `# hashing program for solutions`     \
     edu/mit/csail/sdg/alloy4whole/RunAlloy                    \
     $ALS_FILE

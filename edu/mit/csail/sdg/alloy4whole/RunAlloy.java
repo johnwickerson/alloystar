@@ -84,13 +84,30 @@ public final class RunAlloy {
     return (new SimpleDateFormat("HH:mm:ss").format(new Date()));
   }
 
+  private static String get_cmd_output(String cmd) {
+    String result = null;
+    try {  
+      System.out.printf("Executing %s.\n", cmd);
+      Process p = Runtime.getRuntime().exec(cmd);  
+      BufferedReader input =  
+	new BufferedReader(new InputStreamReader(p.getInputStream()));
+      result = input.readLine(); // assume exactly one line of output
+      input.close();
+    }  
+    catch (Exception err) {  
+      err.printStackTrace();  
+    }
+    return result;
+  }
+
   public static void
     runalloy(String als_filename,
 	     String xml_dir,
 	     A4Options.SatSolver solver,
 	     boolean higherOrderSolver,
 	     int cmd_index,
-	     boolean iter_flag)
+	     boolean iter_flag,
+	     String hash_prog)
     throws Err
   {
     String als_filename_short = new File(als_filename).getName();
@@ -107,12 +124,9 @@ public final class RunAlloy {
     A4Options options = new A4Options();
     options.solver = solver;    
     options.higherOrderSolver = higherOrderSolver;
-
-    String higherOrderString = higherOrderSolver? " (ho)" : "";
     
-    System.out.printf("%s: Running Alloy, using %s%s on command %d.\n",
-		      getTimestamp(), options.solver, higherOrderString,
-		      cmd_index);
+    System.out.printf("Running Alloy, using %s on command %d.\n",
+		      options.solver, cmd_index);
     
     // Extract command to execute
     int num_commands = world.getAllCommands().size();
@@ -154,19 +168,50 @@ public final class RunAlloy {
 	return;      
       }
     }
-    else {
+    else if (hash_prog == null) {
       int num_solns = 0;
       while (soln.satisfiable()) {
 	String xml_filename =
 	  xml_dir + File.separator + "test_" + num_solns + ".xml";
 	soln.writeXML(xml_filename);
 	System.out.printf("%s: Solution %d saved to %s.\r",
-			  getTimestamp(), num_solns, xml_filename);	    
-	soln = soln.next();
+			  getTimestamp(), num_solns, xml_filename);
 	num_solns++;
+	soln = soln.next();
       }
       System.out.printf("\n");
-      System.out.printf("%s: No more solutions found.\n", getTimestamp());
+      System.out.printf("No more solutions found.\n");
+      return;
+    } else {
+      int num_solns = 0;
+      String xml_tmp_filename = "test_tmp.xml";
+      String cmd = hash_prog + " " + xml_tmp_filename;
+      List seen_hashes = new ArrayList<String>();
+      while (soln.satisfiable()) {
+	soln.writeXML(xml_tmp_filename);
+	String hash = get_cmd_output(cmd);
+	if (hash == null) {
+	  System.out.printf("Failed to hash %s.\n", xml_tmp_filename);
+	  System.exit(1);
+	}
+	if (seen_hashes.contains(hash)) {
+	  System.out.printf("%s: Found duplicate solution (hash: %s).\n",
+			     getTimestamp(), hash);
+	} else {
+	  seen_hashes.add(hash);
+	  String xml_filename =
+	    xml_dir + File.separator + "test_" + num_solns + ".xml";
+	  File xml_tmp = new File(xml_tmp_filename);
+	  File xml_new = new File(xml_filename);
+	  xml_tmp.renameTo(xml_new);
+	  System.out.printf("%s: Found unique solution %d (hash: %s), saved to %s.\n",
+			    getTimestamp(), num_solns, hash, xml_filename);
+	  num_solns++;
+	}
+	soln = soln.next();
+      }
+      System.out.printf("\n");
+      System.out.printf("No more solutions found.\n");
       return;
     }
   }
@@ -243,9 +288,12 @@ public final class RunAlloy {
       System.out.printf("-Diter must be true or false.\n");
       System.exit(1);
     }
+
+    // Set via "-Dhash=..." on the command line.
+    String hash_prog = System.getProperty("hash");
     
     runalloy(als_filename, xml_dir, solver,
-	     higherorder, cmd_index, iter_flag);
+	     higherorder, cmd_index, iter_flag, hash_prog);
 
     System.exit(0);    
   }
