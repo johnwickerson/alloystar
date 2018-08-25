@@ -87,7 +87,7 @@ public final class RunAlloy {
   private static String get_cmd_output(String cmd) {
     String result = null;
     try {  
-      System.out.printf("Executing %s.\n", cmd);
+      //System.out.printf("Executing %s.\n", cmd);
       Process p = Runtime.getRuntime().exec(cmd);  
       BufferedReader input =  
 	new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -187,6 +187,7 @@ public final class RunAlloy {
       String xml_tmp_filename = "test_tmp.xml";
       String cmd = hash_prog + " " + xml_tmp_filename;
       List seen_hashes = new ArrayList<String>();
+      boolean seen_dupe = false;
       while (soln.satisfiable()) {
 	soln.writeXML(xml_tmp_filename);
 	String hash = get_cmd_output(cmd);
@@ -195,8 +196,8 @@ public final class RunAlloy {
 	  System.exit(1);
 	}
 	if (seen_hashes.contains(hash)) {
-	  System.out.printf("%s: Found duplicate solution (hash: %s).\n",
-			     getTimestamp(), hash);
+	  System.out.printf("D");
+	  seen_dupe = true;
 	} else {
 	  seen_hashes.add(hash);
 	  String xml_filename =
@@ -204,8 +205,9 @@ public final class RunAlloy {
 	  File xml_tmp = new File(xml_tmp_filename);
 	  File xml_new = new File(xml_filename);
 	  xml_tmp.renameTo(xml_new);
-	  System.out.printf("%s: Found unique solution %d (hash: %s), saved to %s.\n",
-			    getTimestamp(), num_solns, hash, xml_filename);
+	  if (seen_dupe) { System.out.printf("\n"); seen_dupe = false; }
+	  System.out.printf("%s: Found unique solution %d, saved to %s.\n",
+			    getTimestamp(), num_solns, xml_filename);
 	  num_solns++;
 	}
 	soln = soln.next();
