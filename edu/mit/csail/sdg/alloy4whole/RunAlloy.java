@@ -206,8 +206,8 @@ public final class RunAlloy {
 	  File xml_new = new File(xml_filename);
 	  xml_tmp.renameTo(xml_new);
 	  if (seen_dupe) { System.out.printf("\n"); seen_dupe = false; }
-	  System.out.printf("%s: Found unique solution %d, saved to %s.\n",
-			    getTimestamp(), num_solns, xml_filename);
+	  System.out.printf("%s: Found unique solution %d.\n",
+			    getTimestamp(), num_solns);
 	  num_solns++;
 	}
 	soln = soln.next();
