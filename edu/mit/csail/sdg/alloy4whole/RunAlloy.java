@@ -45,6 +45,7 @@ import java.util.*;
 class Globals {
   static Date lastTime;
   static long translationTime;
+  static boolean quiet;
 }
 
 class MyReporter extends A4Reporter {
@@ -72,7 +73,8 @@ class MyReporter extends A4Reporter {
     Date start = Globals.lastTime;
     Date end = new Date();
     long elapsed = end.getTime() - start.getTime();
-    System.out.printf("%s: Translation took %ds (%d vars, %d primary vars, %d clauses).\n", getTimestamp(), elapsed/1000, totalVars, primaryVars, clauses);
+    if (!Globals.quiet)
+      System.out.printf("%s: Translation took %ds (%d vars, %d primary vars, %d clauses).\n", getTimestamp(), elapsed/1000, totalVars, primaryVars, clauses);
     Globals.lastTime = end;
     Globals.translationTime = elapsed;
   }
@@ -125,14 +127,15 @@ public final class RunAlloy {
     options.solver = solver;    
     options.higherOrderSolver = higherOrderSolver;
     
-    System.out.printf("Running Alloy, using %s on command %d.\n",
-		      options.solver, cmd_index);
+    if (!Globals.quiet)
+      System.out.printf("Running Alloy, using %s on command %d.\n",
+			options.solver, cmd_index);
     
     // Extract command to execute
     int num_commands = world.getAllCommands().size();
     if (num_commands <= cmd_index) {
       System.out.printf
-	("ERROR. File %s contains %d commands; expected at least %d.\n",
+	("ERROR: File %s contains %d commands; expected at least %d.\n",
 	 als_filename_short, num_commands, cmd_index + 1);
       System.exit(1);
     }
@@ -153,18 +156,21 @@ public final class RunAlloy {
     Date start = Globals.lastTime;
     Date end = new Date();
     long solveTime = end.getTime() - start.getTime();
-    System.out.printf("Solving took %ds.\n", solveTime/1000);
+    if (!Globals.quiet)
+      System.out.printf("Solving took %ds.\n", solveTime/1000);
 
     if (!iter_flag) {
       if (soln.satisfiable()) {
 	String xml_filename =
 	  xml_dir + File.separator + "test_0.xml";
 	soln.writeXML(xml_filename);
-	System.out.printf("%s: Solution saved to %s.\n",
-			  getTimestamp(), xml_filename);
+	if (!Globals.quiet)
+	  System.out.printf("%s: Solution saved to %s.\n",
+			    getTimestamp(), xml_filename);
 	return;
       } else {
-	System.out.printf("No solution found.\n");
+	if (!Globals.quiet)
+	  System.out.printf("No solution found.\n");
 	return;      
       }
     }
@@ -174,30 +180,29 @@ public final class RunAlloy {
 	String xml_filename =
 	  xml_dir + File.separator + "test_" + num_solns + ".xml";
 	soln.writeXML(xml_filename);
-	System.out.printf("%s: Solution %d saved to %s.\r",
-			  getTimestamp(), num_solns, xml_filename);
+	if (!Globals.quiet)
+	  System.out.printf("%s: Solution %d saved to %s.\r",
+			    getTimestamp(), num_solns, xml_filename);
 	num_solns++;
 	soln = soln.next();
       }
-      System.out.printf("\n");
-      System.out.printf("No more solutions found.\n");
+      if (!Globals.quiet)
+	System.out.printf("\nNo more solutions found.\n");
       return;
     } else {
       int num_solns = 0;
       String xml_tmp_filename = "test_tmp.xml";
       String cmd = hash_prog + " " + xml_tmp_filename;
       List seen_hashes = new ArrayList<String>();
-      boolean seen_dupe = false;
       while (soln.satisfiable()) {
 	soln.writeXML(xml_tmp_filename);
 	String hash = get_cmd_output(cmd);
 	if (hash == null) {
-	  System.out.printf("Failed to hash %s.\n", xml_tmp_filename);
+	  System.out.printf("ERROR: Failed to hash %s.\n", xml_tmp_filename);
 	  System.exit(1);
 	}
 	if (seen_hashes.contains(hash)) {
-	  System.out.printf("D");
-	  seen_dupe = true;
+	  System.out.printf(".");
 	} else {
 	  seen_hashes.add(hash);
 	  String xml_filename =
@@ -205,15 +210,14 @@ public final class RunAlloy {
 	  File xml_tmp = new File(xml_tmp_filename);
 	  File xml_new = new File(xml_filename);
 	  xml_tmp.renameTo(xml_new);
-	  if (seen_dupe) { System.out.printf("\n"); seen_dupe = false; }
-	  System.out.printf("%s: Found unique solution %d.\n",
-			    getTimestamp(), num_solns);
+	  if (!Globals.quiet)
+	    System.out.printf(" %d", num_solns);
 	  num_solns++;
 	}
 	soln = soln.next();
       }
-      System.out.printf("\n");
-      System.out.printf("No more solutions found.\n");
+      if (!Globals.quiet)
+	System.out.printf("\nNo more solutions found.\n");
       return;
     }
   }
@@ -270,6 +274,17 @@ public final class RunAlloy {
       System.out.printf("-Dhigherorder must be true or false.\n");
       System.exit(1);
     }
+
+    // Set via "-Dquiet=[true/false]" on the command line.
+    String quiet_str = System.getProperty("quiet");
+    Globals.quiet = false;
+    if (quiet_str == null || quiet_str.equals("false")){
+    } else if (quiet_str.equals("true")){
+      Globals.quiet = true;
+    } else {
+      System.out.printf("-Dquiet must be true or false.\n");
+      System.exit(1);
+    }
     
     // Set via "-Dcmd=..." on the command line.
     String cmd_index_str = System.getProperty("cmd");
@@ -297,7 +312,7 @@ public final class RunAlloy {
     runalloy(als_filename, xml_dir, solver,
 	     higherorder, cmd_index, iter_flag, hash_prog);
 
-    System.exit(0);    
+    System.exit(0);
   }
 }
 
