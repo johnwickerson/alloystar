@@ -73,8 +73,9 @@ class MyReporter extends A4Reporter {
     Date start = Globals.lastTime;
     Date end = new Date();
     long elapsed = end.getTime() - start.getTime();
+    double elapsed_d = (double)elapsed;
     if (!Globals.quiet)
-      System.out.printf("%s: Translation took %ds (%d vars, %d primary vars, %d clauses).\n", getTimestamp(), elapsed/1000, totalVars, primaryVars, clauses);
+      System.out.printf("%s: Translation took %.2fs (%d vars, %d primary vars, %d clauses).\n", getTimestamp(), elapsed_d/1000.0, totalVars, primaryVars, clauses);
     Globals.lastTime = end;
     Globals.translationTime = elapsed;
   }
@@ -126,6 +127,7 @@ public final class RunAlloy {
     A4Options options = new A4Options();
     options.solver = solver;    
     options.higherOrderSolver = higherOrderSolver;
+    options.solverThreads = 0;
     
     if (!Globals.quiet)
       System.out.printf("Running Alloy, using %s on command %d.\n",
@@ -153,13 +155,14 @@ public final class RunAlloy {
       return; // needed to avoid silly compiler error
     }
 
-    Date start = Globals.lastTime;
-    Date end = new Date();
-    long solveTime = end.getTime() - start.getTime();
-    if (!Globals.quiet)
-      System.out.printf("Solving took %ds.\n", solveTime/1000);
+
 
     if (!iter_flag) {
+      Date start = Globals.lastTime;
+      Date end = new Date();
+      double solveTime = (double)(end.getTime() - start.getTime());
+      if (!Globals.quiet)
+	System.out.printf("Solving took %.2fs.\n", solveTime/1000.0);
       if (soln.satisfiable()) {
 	String xml_filename =
 	  xml_dir + File.separator + "test_0.xml";
@@ -186,8 +189,13 @@ public final class RunAlloy {
 	num_solns++;
 	soln = soln.next();
       }
-      if (!Globals.quiet)
-	System.out.printf("\nNo more solutions found.\n");
+      Date start = Globals.lastTime;
+      Date end = new Date();
+      double solveTime = (double)(end.getTime() - start.getTime());
+      if (!Globals.quiet) {
+	System.out.printf("\nSolving took %.2fs.\n", solveTime/1000.0);
+	System.out.printf("No more solutions found.\n");
+      }
       return;
     } else {
       int num_solns = 0;
@@ -216,8 +224,13 @@ public final class RunAlloy {
 	}
 	soln = soln.next();
       }
-      if (!Globals.quiet)
-	System.out.printf("\nNo more solutions found.\n");
+      Date start = Globals.lastTime;
+      Date end = new Date();
+      double solveTime = (double)(end.getTime() - start.getTime());
+      if (!Globals.quiet) {
+	System.out.printf("\nSolving took %.2fs.\n", solveTime/1000.0);
+	System.out.printf("No more solutions found.\n");
+      }
       return;
     }
   }
